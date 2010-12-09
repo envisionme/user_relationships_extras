@@ -1,0 +1,7 @@
+name = User Relationship Extras
+description = Custom User Relationship extras like mutual friends and people you might know blocks
+core = 6.x
+package = NoJoShmo - Custom Modules
+
+version = "6.x-1-dev"
+core = "6.x"
