@@ -55,8 +55,8 @@ function user_relationships_extras_block($op = 'list', $delta = 0, $edit = array
       if (count($suggested_contacts) >= $list_size)
         break(1);
     }
-    if (empty($suggested_contacts))
-      $output .= t('No Mutual Contacts');
+    // if (empty($suggested_contacts))
+      // $output .= t('No Mutual Contacts');
 
     foreach ($suggested_contacts as $suggested) {
       $output .= _theme_contact_small($suggested);
