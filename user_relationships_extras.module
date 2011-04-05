@@ -96,7 +96,7 @@ function user_relationships_extras_block($op = 'list', $delta = 0, $edit = array
                         LEFT JOIN {users_roles} roles ON roles.uid = users_user_relationships.uid
                         LEFT JOIN {user_relationship_types} user_relationship_types_user_relationships ON user_relationships.rtid = user_relationship_types_user_relationships.rtid
                         WHERE (user_relationships.approved = "%s") AND (user_relationships.requester_id = %d)
-												GROUP by users_user_relationships.uid
+												GROUP BY users_user_relationships.uid
                         ORDER BY _random ASC', $relationship_status, $current_user, 0, $tolerance);
     
     while ($row = db_fetch_object($result)) {
@@ -121,6 +121,7 @@ function user_relationships_extras_block($op = 'list', $delta = 0, $edit = array
                         LEFT JOIN {users_roles} roles ON roles.uid = users_user_relationships.uid
                         LEFT JOIN {user_relationship_types} user_relationship_types_user_relationships ON user_relationships.rtid = user_relationship_types_user_relationships.rtid
                         WHERE (user_relationships.approved = "%s") AND (user_relationships.requester_id = %d)
+												GROUP BY users_user_relationships.uid
                         ORDER BY _random ASC', $relationship_status, $contacts[$current]
       );
 
