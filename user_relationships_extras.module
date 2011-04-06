@@ -157,10 +157,16 @@ function user_relationships_extras_block($op = 'list', $delta = 0, $edit = array
      * Facebook-Style Status Form
      */
     global $user;
-    //~ Make sure only applicants can see this
-    if(!in_array('applicant', $user->roles)) return;
-    $output = 'Set new status: ';
-    $output .= theme('facebook_status_form_display', user_load(get_uid_from_url()));
+    $profile = user_load(get_uid_from_url());
+		$is_contact = user_relationships_load(array("approved" => 1, "between" => array($profile->uid, $user->uid)), array('count' => true));
+		//~ Make sure only applicants and friends can see this
+    if(!in_array('applicant', $user->roles) || $is_contact <= 0) return;
+    if ($user->uid == $profile->uid)
+			$output = 'Set a new status: ';
+		else
+			$output = 'Write a message: ';
+		
+    $output .= theme('facebook_status_form_display', $profile);
 
     $block = array();
     $block['subject'] = '';
