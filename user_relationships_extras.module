@@ -38,7 +38,7 @@ function user_relationships_extras_block($op = 'list', $delta = 0, $edit = array
                         user_relationship_types_user_relationships.plural_name AS plural_name,
                         roles.rid AS role,
                         RAND() as _random
-                        FROM {user_relationships} user_relationships 
+                        FROM {user_relationships} user_relationships
                         LEFT JOIN {users} users_user_relationships ON user_relationships.requestee_id = users_user_relationships.uid
                         LEFT JOIN {users} users_user_relationships_1 ON user_relationships.requester_id = users_user_relationships_1.uid
                         LEFT JOIN {users_roles} roles ON roles.uid = users_user_relationships.uid
@@ -66,7 +66,7 @@ function user_relationships_extras_block($op = 'list', $delta = 0, $edit = array
     $block['subject'] = 'Mutual Contacts';
     $block['content'] = $output;
     return $block;
-  } 
+  }
   else if($op == 'view' && $delta == 1) {
     /**
      * People You Might Know
@@ -81,7 +81,7 @@ function user_relationships_extras_block($op = 'list', $delta = 0, $edit = array
     $relationship_status = '1';
     $tolerance = 4;
     $list_size = 3;
-    
+
     //~ Create array of contacts
     $result = db_query_range('SELECT user_relationships.rid AS rid,
                         users_user_relationships.name AS name,
@@ -90,7 +90,7 @@ function user_relationships_extras_block($op = 'list', $delta = 0, $edit = array
                         user_relationship_types_user_relationships.plural_name AS plural_name,
                         roles.rid AS role,
                         RAND() as _random
-                        FROM {user_relationships} user_relationships 
+                        FROM {user_relationships} user_relationships
                         LEFT JOIN {users} users_user_relationships ON user_relationships.requestee_id = users_user_relationships.uid
                         LEFT JOIN {users} users_user_relationships_1 ON user_relationships.requester_id = users_user_relationships_1.uid
                         LEFT JOIN {users_roles} roles ON roles.uid = users_user_relationships.uid
@@ -98,14 +98,14 @@ function user_relationships_extras_block($op = 'list', $delta = 0, $edit = array
                         WHERE (user_relationships.approved = "%s") AND (user_relationships.requester_id = %d)
 												GROUP BY users_user_relationships.uid
                         ORDER BY _random ASC', $relationship_status, $current_user, 0, $tolerance);
-    
+
     while ($row = db_fetch_object($result)) {
       if ($row->role == 4)
         $contacts[] = $row->uid;
     }
-  
+
     $suggested_contacts = array();
-    
+
     $current = 0;
     while (isset($contacts[$current])) {
       $result = db_query('SELECT user_relationships.rid AS rid,
@@ -115,7 +115,7 @@ function user_relationships_extras_block($op = 'list', $delta = 0, $edit = array
                         user_relationship_types_user_relationships.plural_name AS plural_name,
                         roles.rid AS role,
                         RAND() as _random
-                        FROM {user_relationships} user_relationships 
+                        FROM {user_relationships} user_relationships
                         LEFT JOIN {users} users_user_relationships ON user_relationships.requestee_id = users_user_relationships.uid
                         LEFT JOIN {users} users_user_relationships_1 ON user_relationships.requester_id = users_user_relationships_1.uid
                         LEFT JOIN {users_roles} roles ON roles.uid = users_user_relationships.uid
@@ -139,7 +139,7 @@ function user_relationships_extras_block($op = 'list', $delta = 0, $edit = array
       }
       $current++;
     }
-    
+
     if (empty($suggested_contacts))
       $output .= t('No Suggestions');
 
@@ -166,7 +166,7 @@ function user_relationships_extras_block($op = 'list', $delta = 0, $edit = array
 			$output = 'Set a new status: ';
 		else
 			$output = 'Write a message: ';
-		
+
     $output .= theme('facebook_status_form_display', $profile);
 
     $block = array();
@@ -175,22 +175,22 @@ function user_relationships_extras_block($op = 'list', $delta = 0, $edit = array
     return $block;
   }
   else if($op == 'view' && $delta == 3) {
-    
+
     $output = '';
-    
+
     //Relationship Requests Block
     global $user;
-    
+
     $relationships = user_relationships_load(array('user' => $user->uid, 'requestee_id' => $user->uid, 'approved' => FALSE), array('include_user_info' => TRUE));
-    
+
     //~ print_r(arg(1));
-    
+
     if ((count($relationships) > 0) && (arg(1) == $user->uid)) {
       //~ print_r($relationships);
       foreach ($relationships as $relationship) {
         $output .= '<br />'._theme_contact_full($relationship->requester_id, $name = TRUE, $user_relationship = $relationship);
       }
-    
+
       $block['subject'] = 'Pending Contact Requests';
       $block['content'] = $output;
       //~ $block['content'] = 'test';
@@ -218,7 +218,7 @@ function user_relationships_extras_theme() {
     'heartbeat_article' => array(
       'arguments' => array('message' => NULL, 'node' => NULL)
     ),
-    
+
     // Theme Showcase heartbeat node
     'heartbeat_showcase_item' => array(
       'arguments' => array('message' => NULL, 'node' => NULL)
@@ -252,6 +252,23 @@ function user_relationships_extras_theme() {
 function theme_contact_small($uid) {
   //~ usage: theme('heartbeat_group_post', $uid);
   $output = '';
-  
+
   return $output;
+}
+
+/**
+* Implementation of hook_views_plugins().
+*/
+function user_relationships_extras_views_plugins() {
+  return array(
+    'access' => array(
+      'relationships' => array(
+        'title' => t('User has relationship'),
+        'help' => t('User has relationship'),
+        'handler' => 'user_relationships_extras_plugin_has_relationships',
+        'help topic' => 'access-none',
+        'uses options' => TRUE,
+      ),
+    )
+  );
 }
