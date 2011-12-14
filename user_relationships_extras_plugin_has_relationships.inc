@@ -12,11 +12,11 @@ class user_relationships_extras_plugin_has_relationships extends views_plugin_ac
   }
 
   function access($account) {
-      return views_has_relationship(array_filter($this->options['relationships']), $account);
-    }
+    return views_has_relationship();
+  }
 
-    function get_access_callback() {
-      return array('views_has_relationship', array(array_filter($this->options['relationships'])));
+	function get_access_callback() {
+     return array('views_has_relationship', array(arg(1)));
     }
 
     function summary_title() {

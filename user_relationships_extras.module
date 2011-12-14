@@ -274,10 +274,21 @@ function user_relationships_extras_views_plugins() {
 }
 
 // Check if user has access to view relationship
-function views_has_relationship($rtids, $account = NULL) {
- global $user;
- $account = isset($account) ? $account : $user;
- $relationship = array_keys($account->relationships);
- $relationship[] = $account->uid;
- return user_access('access all views', $account) || array_intersect(array_filter($rtids), $relationship);
+function views_has_relationship() {
+  global $user;
+  
+  if ($is_user = user_load(arg(1))) {
+      $uid = $is_user->uid;
+  } elseif ($is_node = node_load(arg(1))) {
+      $uid = $is_node->uid;
+  } else {
+      $uid = arg(1);
+  }
+  
+  if ($user->uid == 1 || $user->uid == $uid) {
+      return TRUE;
+  }
+  
+  $params = array('between' => array($user->uid, $uid));
+  return (bool) user_relationships_load($params, array('count' => TRUE));
 }
