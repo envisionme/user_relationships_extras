@@ -272,3 +272,12 @@ function user_relationships_extras_views_plugins() {
     )
   );
 }
+
+// Check if user has access to view relationship
+function views_has_relationship($rtids, $account = NULL) {
+ global $user;
+ $account = isset($account) ? $account : $user;
+ $relationship = array_keys($account->relationships);
+ $relationship[] = $account->uid;
+ return user_access('access all views', $account) || array_intersect(array_filter($rtids), $relationship);
+}
