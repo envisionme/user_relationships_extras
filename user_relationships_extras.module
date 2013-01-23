@@ -141,7 +141,7 @@ function user_relationships_extras_block($op = 'list', $delta = 0, $edit = array
     }
 
     if (empty($suggested_contacts))
-      $output .= t('No Suggestions');
+      $output .= t('No suggestions');
 
     foreach ($suggested_contacts as $suggested) {
       $output .= _theme_contact_full($suggested);
@@ -276,7 +276,7 @@ function user_relationships_extras_views_plugins() {
 // Check if user has access to view relationship
 function views_has_relationship() {
   global $user;
-  
+
   if ($is_user = user_load(arg(1))) {
       $uid = $is_user->uid;
   } elseif ($is_node = node_load(arg(1))) {
@@ -284,11 +284,11 @@ function views_has_relationship() {
   } else {
       $uid = arg(1);
   }
-  
+
   if ($user->uid == 1 || $user->uid == $uid) {
       return TRUE;
   }
-  
+
   $params = array('between' => array($user->uid, $uid));
   return (bool) user_relationships_load($params, array('count' => TRUE));
 }
