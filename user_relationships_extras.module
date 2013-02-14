@@ -13,6 +13,7 @@ function user_relationships_extras_block($op = 'list', $delta = 0, $edit = array
     $block[1]["info"] = t('People You Might Know');
     $block[2]["info"] = t('Facebook-Style Status Form');
     $block[3]["info"] = t('Pending Contact Requests');
+    $block[4]["info"] = t('User contact list');
     return $block;
   } // end if
   else if($op == 'view' && $delta == 0) {
@@ -59,7 +60,7 @@ function user_relationships_extras_block($op = 'list', $delta = 0, $edit = array
       // $output .= t('No Mutual Contacts');
 
     foreach ($suggested_contacts as $suggested) {
-      $output .= _theme_contact_small($suggested);
+      $output .= njs_list_contacts($suggested);
     }
     // set up the block
     $block = array();
@@ -199,6 +200,30 @@ function user_relationships_extras_block($op = 'list', $delta = 0, $edit = array
       $block['subject'] = '';
       $block['content'] = '';
     }
+    return $block;
+  }
+  // User contact list
+  else if($op == 'view' && $delta == 4) {
+    $output = '';
+    $uid = arg(1);
+    // get all user contacts
+    $sql = db_query("SELECT DISTINCT(user_relationships.rid) AS rid,
+          users_user_relationships.uid AS uid,
+          RAND() AS _random
+          FROM user_relationships user_relationships
+          LEFT JOIN users users_user_relationships ON user_relationships.requestee_id = users_user_relationships.uid
+          LEFT JOIN users users_user_relationships_1 ON user_relationships.requester_id = users_user_relationships_1.uid
+          LEFT JOIN user_relationship_types user_relationship_types_user_relationships ON user_relationships.rtid = user_relationship_types_user_relationships.rtid
+          LEFT JOIN user_relationships users_user_relationships__user_relationships ON users_user_relationships.uid = users_user_relationships__user_relationships.requestee_id
+          WHERE (users_user_relationships__user_relationships.approved = %d) AND (user_relationships.requester_id = %d ) GROUP BY rid ORDER BY _random ASC", 1 , $uid);
+
+    // Loop through the array to get user image and realname
+    while ($row = db_fetch_array($sql)) {
+      $output .= njs_list_contacts($row['uid']);
+    }
+    $block = array();
+    $block['subject'] = 'Contacts';
+    $block['content'] = $output;
     return $block;
   }
 } // end user_relationships_extras_block
