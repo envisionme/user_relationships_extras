@@ -184,12 +184,19 @@ function user_relationships_extras_block($op = 'list', $delta = 0, $edit = array
 
     $relationships = user_relationships_load(array('user' => $user->uid, 'requestee_id' => $user->uid, 'approved' => FALSE), array('include_user_info' => TRUE));
 
-    //~ print_r(arg(1));
-
     if ((count($relationships) > 0) && (arg(1) == $user->uid)) {
       //~ print_r($relationships);
+      $count = 1;
       foreach ($relationships as $relationship) {
-        $output .= '<br />'._theme_contact_full($relationship->requester_id, $name = TRUE, $user_relationship = $relationship);
+        if(count($relationships) == $count ) {
+          $class = 'pending last';
+        } else {
+          $class = 'pending';
+        }
+        $output .= _theme_contact_full($relationship->requester_id, $name = TRUE, $user_relationship = $relationship);
+        $output .= '<div class="'. $class .'">' . l('Confirm', t('user/@req_uid/relationships/requested/@reqstee/approve', array('@req_uid' => $user->uid, '@reqstee' => $relationship->rid)) , array('query' => array('destination' => 'user/'. arg(1) .'/admin'),'attributes' => array('class' => 'user_relationships_popup_link btn')));
+        $output .= ' | '. l('Ignore', t('user/@req_uid/relationships/requested/@reqstee/disapprove', array('@req_uid' => $user->uid, '@reqstee' => $relationship->rid)) , array('query' => array('destination' => 'user/'. arg(1) .'/admin'),'attributes' => array('class' => 'user_relationships_popup_link'))).'</div>';
+        $count = $count + 1;
       }
 
       $block['subject'] = 'Pending Contact Requests';
