@@ -214,7 +214,7 @@ function user_relationships_extras_block($op = 'list', $delta = 0, $edit = array
     $output = '';
     $uid = arg(1);
     // get all user contacts
-    $sql = db_query("SELECT DISTINCT(user_relationships.rid) AS rid,
+    /*$sql = db_query("SELECT DISTINCT(user_relationships.rid) AS rid,
           users_user_relationships.uid AS uid,
           RAND() AS _random
           FROM user_relationships user_relationships
@@ -227,7 +227,16 @@ function user_relationships_extras_block($op = 'list', $delta = 0, $edit = array
     // Loop through the array to get user image and realname
     while ($row = db_fetch_array($sql)) {
       $output .= njs_list_contacts($row['uid']);
+    }*/
+
+    //$flag = flag_get_flag('follow_user');
+    $user_flags = flag_get_user_flags('user', NULL, $uid);
+    if ($user_flags['follow_user'] > 0) {
+      foreach ( $user_flags['follow_user'] as $follow_user_flag ) {
+        $output .= njs_list_contacts($follow_user_flag->content_id);
+      }
     }
+
     $block = array();
     $block['subject'] = 'Contacts';
     $block['content'] = $output;
