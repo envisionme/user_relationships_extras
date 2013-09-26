@@ -223,6 +223,18 @@ function user_relationships_extras_block($op = 'list', $delta = 0, $edit = array
       $output .= 'Not following anyone yet.';
     }
 
+    // Get blocked users
+    $flag = flag_get_flag('block_user');
+    
+    $result = db_query('SELECT content_id FROM {flag_content} WHERE (uid = "%s") AND (fid = "%s")', $uid, $flag->fid);
+
+    $blocked_empty = true;
+    $arr_blocked_users = array();
+    while ($row = db_fetch_object($result)) {
+      $blocked_empty = false;
+      $arr_blocked_users[] = $row->content_id;
+    }
+
     // Get followers
     $output .= '<div style="clear: both"></div><br />';
     $output .= '<p><b>Followers:</b></p>';
@@ -233,12 +245,25 @@ function user_relationships_extras_block($op = 'list', $delta = 0, $edit = array
 
     $followers_empty = true;
     while ($row = db_fetch_object($result)) {
-      $followers_empty = false;
-      $output .= njs_list_contacts($row->uid);
+      if ( !(in_array($row->uid, $arr_blocked_users)) ) {
+        $followers_empty = false;
+        $output .= njs_list_contacts($row->uid);
+      }
     }
 
     if( $followers_empty )
       $output .= 'No followers yet.';
+
+    // Display blocked users
+    $output .= '<div style="clear: both"></div><br />';
+    $output .= '<p><b>Blocked Followers:</b></p>';
+
+    foreach ( $arr_blocked_users as $blocked_user ) {
+      $output .= njs_list_contacts($blocked_user);
+    }
+      
+    if( $blocked_empty )
+      $output .= 'No blocked followers.';
 
     $block = array();
     $block['subject'] = 'Contacts';
